@@ -506,28 +506,28 @@
     </div>
 
     <script>
-         // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        // Firebase Configuration - YOU MUST REPLACE WITH YOUR OWN
-         const firebaseConfig = {
-    apiKey: "AIzaSyDRKFLiU0ZJYy0ywoPWS0eSE6JSGy3aaLo",
-    authDomain: "adrenalintsoateamselectionapp.firebaseapp.com",
-    databaseURL: "https://adrenalintsoateamselectionapp-default-rtdb.firebaseio.com",
-    projectId: "adrenalintsoateamselectionapp",
-    storageBucket: "adrenalintsoateamselectionapp.firebasestorage.app",
-    messagingSenderId: "1058584687065",
-    appId: "1:1058584687065:web:7e9d8d3e209dbdee9fe9c8",
-    measurementId: "G-084Q4KL0WB"
-  };
+        // Firebase Configuration - Updated with your credentials
+        const firebaseConfig = {
+            apiKey: "AIzaSyDRKFLiU0ZJYy0ywoPWS0eSE6JSGy3aaLo",
+            authDomain: "adrenalintsoateamselectionapp.firebaseapp.com",
+            databaseURL: "https://adrenalintsoateamselectionapp-default-rtdb.firebaseio.com",
+            projectId: "adrenalintsoateamselectionapp",
+            storageBucket: "adrenalintsoateamselectionapp.firebasestorage.app",
+            messagingSenderId: "1058584687065",
+            appId: "1:1058584687065:web:7e9d8d3e209dbdee9fe9c8",
+            measurementId: "G-084Q4KL0WB"
+        };
         
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        let database;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            console.log("Firebase initialized successfully");
+            database = firebase.database();
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            alert("Error initializing Firebase. Please check console for details.");
+        }
         
         // Configuration
         const HOST_KEY = "HOSTKEY123";
@@ -572,7 +572,7 @@
             };
             
             for (const employeeId in assignments) {
-                const team = assignments[employeeId];
+                const team = assignments[employeeId].team;
                 if (teamCounts.hasOwnProperty(team)) {
                     teamCounts[team]++;
                 }
@@ -594,7 +594,7 @@
         // Update recent assignments
         function updateRecentAssignments() {
             const container = document.getElementById('assignmentsContainer');
-            const assignments = JSON.parse(localStorage.getItem('teamAssignments') || {};
+            const assignments = JSON.parse(localStorage.getItem('teamAssignments') || '{}');
             
             // Get last 5 assignments
             const keys = Object.keys(assignments);
@@ -608,7 +608,7 @@
             }
             
             recentAssignments.forEach(employeeId => {
-                const colorName = assignments[employeeId];
+                const colorName = assignments[employeeId].team;
                 const color = colors.find(c => c.name === colorName);
                 
                 const card = document.createElement('div');
@@ -647,8 +647,9 @@
             
             // Create CSV content
             let csvContent = "Employee ID,Team Color\n";
-            for (const [employeeId, color] of Object.entries(assignments)) {
-                csvContent += `${employeeId},${color}\n`;
+            for (const employeeId in assignments) {
+                const team = assignments[employeeId].team;
+                csvContent += `${employeeId},${team}\n`;
             }
             
             // Create and download file
@@ -766,13 +767,6 @@
                 document.getElementById('keyModal').style.display = 'none';
                 window.location.href = 'index.html';
             });
-            
-            // Check if we have existing assignments
-            if (localStorage.getItem('teamAssignments')) {
-                setupRealtimeUpdates();
-                updateStats();
-                updateRecentAssignments();
-            }
         });
     </script>
 </body>
