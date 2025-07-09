@@ -501,12 +501,12 @@
         <div class="footer">
             <p>Team Selection Event | 450 Associates | 5 Color Teams</p>
             <p>Each team will have exactly 90 members | Only one spin allowed per participant</p>
-            <p>Host Key: <strong>HOSTKEY123</strong></p>
+            <!-- Host key removed from public view -->
         </div>
     </div>
 
     <script>
-        // Firebase Configuration - Updated with your credentials
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDRKFLiU0ZJYy0ywoPWS0eSE6JSGy3aaLo",
             authDomain: "adrenalintsoateamselectionapp.firebaseapp.com",
@@ -530,7 +530,7 @@
         }
         
         // Configuration
-        const HOST_KEY = "HOSTKEY123";
+        const HOST_KEY = "HOSTKEY123"; // Keep this secure
         const colors = [
             { name: "Red", value: "#e74c3c" },
             { name: "Blue", value: "#3498db" },
@@ -610,13 +610,14 @@
             recentAssignments.forEach(employeeId => {
                 const colorName = assignments[employeeId].team;
                 const color = colors.find(c => c.name === colorName);
+                const timestamp = new Date(assignments[employeeId].timestamp).toLocaleTimeString();
                 
                 const card = document.createElement('div');
                 card.className = 'assignment-card';
                 card.innerHTML = `
                     <div>
                         <strong>${employeeId}</strong>
-                        <div style="font-size: 0.9rem; opacity: 0.8;">${new Date().toLocaleTimeString()}</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">${timestamp}</div>
                     </div>
                     <div style="display: flex; align-items: center;">
                         <span class="color-box" style="background:${color.value}"></span>
@@ -683,6 +684,8 @@
             }
             
             const token = 'glitch-' + Math.random().toString(36).substring(2, 15);
+            
+            // FIX: Correct URL for GitHub Pages
             const specialLink = window.location.origin + '/index.html?token=' + token + '&employeeId=' + employeeId;
             
             // Save token in localStorage

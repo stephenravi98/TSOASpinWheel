@@ -266,20 +266,6 @@
             color: #ffd700;
         }
         
-        .device-locked-message {
-            font-size: 1.3rem;
-            color: #ffd700;
-            text-align: center;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            margin-top: 10px;
-            border: 1px solid #ffd700;
-            max-width: 480px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
         .footer {
             margin-top: 40px;
             text-align: center;
@@ -289,35 +275,62 @@
             font-size: 1.1rem;
         }
         
-        @media (max-width: 600px) {
+        /* Mobile Responsive Updates */
+        @media (max-width: 500px) {
             .wheel-container {
-                width: 380px;
-                height: 380px;
+                width: 95vw;
+                height: 95vw;
+                max-width: 380px;
+                max-height: 380px;
             }
             
             .wheel-label {
-                height: 190px;
-                padding-bottom: 45px;
-                font-size: 1.4rem;
+                padding-bottom: 50px;
+                font-size: 1.3rem;
             }
             
             .wheel-inner {
-                width: 130px;
-                height: 130px;
+                width: 25vw;
+                height: 25vw;
+                min-width: 100px;
+                min-height: 100px;
+            }
+            
+            .spin-button {
+                padding: 15px 30px;
+                font-size: 1.2rem;
+            }
+            
+            .result {
+                font-size: 1.5rem;
             }
             
             h1 {
                 font-size: 2.2rem;
             }
             
-            .spin-button {
-                padding: 15px 40px;
-                font-size: 1.2rem;
+            .subtitle {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .wheel-label {
+                font-size: 1.1rem;
+                padding-bottom: 45px;
             }
             
-            .pointer {
-                top: -12px;
-                height: 50px;
+            .stat-item {
+                min-width: 110px;
+                padding: 15px;
+            }
+            
+            .stat-value {
+                font-size: 1.8rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
             }
         }
     </style>
@@ -364,10 +377,6 @@
             <i class="fas fa-exclamation-triangle"></i> This assignment is already completed for <span class="participant-id" id="completedId"></span>
         </div>
         
-        <div id="deviceLockedMessage" class="device-locked-message" style="display: none;">
-            <i class="fas fa-lock"></i> This device has already been used for an assignment. Only the host can grant additional spins.
-        </div>
-        
         <div class="stats">
             <div class="stat-item">
                 <div class="stat-value">450</div>
@@ -390,7 +399,7 @@
     </div>
 
     <script>
-        // Firebase Configuration - Updated with your credentials
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDRKFLiU0ZJYy0ywoPWS0eSE6JSGy3aaLo",
             authDomain: "adrenalintsoateamselectionapp.firebaseapp.com",
@@ -425,30 +434,6 @@
         const totalParticipants = 450;
         const participantsPerColor = totalParticipants / colors.length;
         
-        // Generate a device fingerprint
-        function generateDeviceFingerprint() {
-            const fingerprintData = [
-                navigator.userAgent,
-                navigator.hardwareConcurrency,
-                navigator.deviceMemory,
-                screen.width,
-                screen.height,
-                screen.colorDepth,
-                new Date().getTimezoneOffset(),
-                !!navigator.cookieEnabled,
-                !!navigator.javaEnabled()
-            ].join('|');
-            
-            // Simple hash function
-            let hash = 0;
-            for (let i = 0; i < fingerprintData.length; i++) {
-                const char = fingerprintData.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash |= 0; // Convert to 32bit integer
-            }
-            return 'device-' + Math.abs(hash).toString(16);
-        }
-        
         // Check URL for special token
         function checkForSpecialToken() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -465,11 +450,10 @@
                     delete assignments[employeeId];
                     localStorage.setItem('teamAssignments', JSON.stringify(assignments));
                     
-                    // Remove device lock for this employee
-                    const deviceAssignments = JSON.parse(localStorage.getItem('deviceAssignments') || '{}');
-                    const deviceFingerprint = generateDeviceFingerprint();
-                    delete deviceAssignments[deviceFingerprint];
-                    localStorage.setItem('deviceAssignments', JSON.stringify(deviceAssignments));
+                    // Remove from Firebase
+                    if (database) {
+                        database.ref('assignments/' + employeeId).remove();
+                    }
                     
                     // Remove token from localStorage
                     delete glitchTokens[token];
@@ -485,7 +469,6 @@
                     
                     document.getElementById('spinButton').disabled = false;
                     document.getElementById('alreadyCompleted').style.display = 'none';
-                    document.getElementById('deviceLockedMessage').style.display = 'none';
                     
                     alert("Special access granted! You can now spin the wheel again.");
                 } else {
@@ -513,22 +496,9 @@
             }
             
             // Save to localStorage
-            const assignments = JSON.parse(localStorage.getItem('teamAssignments')) || {};
-            assignments[employeeId] = color.name;
+            const assignments = JSON.parse(localStorage.getItem('teamAssignments')) || '{}';
+            assignments[employeeId] = { team: color.name, timestamp: new Date().getTime() };
             localStorage.setItem('teamAssignments', JSON.stringify(assignments));
-            
-            // Save device assignment
-            const deviceFingerprint = generateDeviceFingerprint();
-            const deviceAssignments = JSON.parse(localStorage.getItem('deviceAssignments')) || {};
-            deviceAssignments[deviceFingerprint] = employeeId;
-            localStorage.setItem('deviceAssignments', JSON.stringify(deviceAssignments));
-        }
-        
-        // Check if device is locked to an employee ID
-        function checkDeviceLock() {
-            const deviceFingerprint = generateDeviceFingerprint();
-            const deviceAssignments = JSON.parse(localStorage.getItem('deviceAssignments')) || {};
-            return deviceAssignments[deviceFingerprint];
         }
         
         // Show already completed message
@@ -541,7 +511,6 @@
             
             employeeIdInput.disabled = true;
             spinButton.disabled = true;
-            resultDiv.style.display = 'none';
             
             completedId.textContent = employeeId;
             completedMessage.style.display = 'block';
@@ -551,16 +520,6 @@
                 <span class="color-box" style="background:${color.value}"></span>
                 <span>Your team is: <strong>${color.name}</strong></span>
             </div>`;
-            resultDiv.style.display = 'flex';
-        }
-        
-        // Show device locked message
-        function showDeviceLockedMessage() {
-            const spinButton = document.getElementById('spinButton');
-            const deviceLockedMessage = document.getElementById('deviceLockedMessage');
-            
-            spinButton.disabled = true;
-            deviceLockedMessage.style.display = 'block';
         }
         
         // Simulate spinning animation
@@ -579,15 +538,8 @@
             // Check if already completed
             const existingAssignment = checkParticipant(employeeId);
             if (existingAssignment) {
-                const color = colors.find(c => c.name === existingAssignment);
+                const color = colors.find(c => c.name === existingAssignment.team);
                 showCompletedMessage(employeeId, color);
-                return;
-            }
-            
-            // Check if device is locked to a different employee
-            const deviceLockedEmployee = checkDeviceLock();
-            if (deviceLockedEmployee && deviceLockedEmployee !== employeeId) {
-                showDeviceLockedMessage();
                 return;
             }
             
@@ -634,19 +586,27 @@
         document.addEventListener('DOMContentLoaded', () => {
             checkForSpecialToken();
             
-            // Check if device is locked to an employee
-            const deviceLockedEmployee = checkDeviceLock();
-            if (deviceLockedEmployee) {
-                const employeeIdInput = document.getElementById('employeeId');
-                employeeIdInput.value = deviceLockedEmployee;
-                employeeIdInput.disabled = true;
-                
-                const existingAssignment = checkParticipant(deviceLockedEmployee);
-                if (existingAssignment) {
-                    const color = colors.find(c => c.name === existingAssignment);
-                    showCompletedMessage(deviceLockedEmployee, color);
-                } else {
-                    showDeviceLockedMessage();
+            // Check if participant has already spun
+            const assignments = JSON.parse(localStorage.getItem('teamAssignments') || '{}');
+            const employeeIdInput = document.getElementById('employeeId');
+            const spinButton = document.getElementById('spinButton');
+            
+            // Check if there's an assignment for this session
+            for (const id in assignments) {
+                if (assignments.hasOwnProperty(id)) {
+                    const color = colors.find(c => c.name === assignments[id].team);
+                    employeeIdInput.value = id;
+                    employeeIdInput.disabled = true;
+                    spinButton.disabled = true;
+                    
+                    document.getElementById('result').innerHTML = `<div class="color-indicator">
+                        <span class="color-box" style="background:${color.value}"></span>
+                        <span>Your team is: <strong>${color.name}</strong></span>
+                    </div>`;
+                    
+                    document.getElementById('completedId').textContent = id;
+                    document.getElementById('alreadyCompleted').style.display = 'block';
+                    break;
                 }
             }
             
