@@ -311,6 +311,47 @@
             100% { opacity: 1; }
         }
         
+        .manual-assignment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .form-group select {
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .manual-button {
+            background: linear-gradient(45deg, #2196F3, #0d47a1);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .manual-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
         @media (max-width: 768px) {
             .dashboard-content {
                 flex-direction: column;
@@ -425,25 +466,35 @@
                     </button>
                 </div>
                 
+                <!-- Manual Assignment Section for Technical Glitches -->
                 <div class="host-controls">
-                    <h3><i class="fas fa-link"></i> Special Links</h3>
-                    <p>Generate a special link for participants who faced technical issues:</p>
-                    <div class="input-group">
-                        <label for="glitchEmployeeId">Employee ID:</label>
-                        <input type="text" id="glitchEmployeeId" placeholder="Enter employee ID">
-                    </div>
-                    <button class="download-button" id="generateLinkButton">
-                        <i class="fas fa-plus-circle"></i> Generate Special Link
-                    </button>
+                    <h3><i class="fas fa-user-cog"></i> Manual Assignment</h3>
+                    <p>Manually assign a team for participants who faced technical issues:</p>
                     
-                    <div id="specialLinkContainer" style="display: none; margin-top: 15px;">
-                        <label>Special Participant Link:</label>
-                        <div style="display: flex; gap: 10px; margin-top: 5px;">
-                            <input type="text" id="specialLink" readonly style="flex: 1;">
-                            <button class="download-button" id="copyLinkButton" style="padding: 10px 15px;">
-                                <i class="fas fa-copy"></i> Copy
-                            </button>
+                    <div class="manual-assignment-form">
+                        <div class="form-group">
+                            <label for="manualEmployeeId">Employee ID:</label>
+                            <input type="text" id="manualEmployeeId" class="modal-input" placeholder="Enter employee ID">
                         </div>
+                        
+                        <div class="form-group">
+                            <label for="teamSelect">Select Team:</label>
+                            <select id="teamSelect" class="modal-input">
+                                <option value="Red">Red Team</option>
+                                <option value="Blue">Blue Team</option>
+                                <option value="Green">Green Team</option>
+                                <option value="Yellow">Yellow Team</option>
+                                <option value="Purple">Purple Team</option>
+                            </select>
+                        </div>
+                        
+                        <button class="manual-button" id="manualAssignButton">
+                            <i class="fas fa-user-check"></i> Assign Team
+                        </button>
+                    </div>
+                    
+                    <div id="manualSuccess" style="display: none; margin-top: 15px; padding: 10px; background: rgba(0, 255, 0, 0.2); border-radius: 8px; text-align: center;">
+                        <i class="fas fa-check-circle"></i> Team assigned successfully!
                     </div>
                 </div>
             </div>
@@ -667,49 +718,52 @@
             alert("Report downloaded successfully!");
         }
         
-        // Generate special link for participants with technical issues
-        function generateSpecialLink() {
-            const employeeId = document.getElementById('glitchEmployeeId').value.trim();
+        // Manually assign team for technical glitches
+        function manualAssignment() {
+            const employeeId = document.getElementById('manualEmployeeId').value.trim();
+            const team = document.getElementById('teamSelect').value;
             
             if (!employeeId) {
                 alert("Please enter Employee ID");
                 return;
             }
             
-            // Check if employee exists
+            // Get assignments from localStorage
             const assignments = JSON.parse(localStorage.getItem('teamAssignments') || '{}');
-            if (!assignments[employeeId]) {
-                alert("No assignment found for this employee ID");
+            
+            // Check if employee is already assigned
+            if (assignments[employeeId]) {
+                alert("This employee is already assigned to a team");
                 return;
             }
             
-            const token = 'glitch-' + Math.random().toString(36).substring(2, 15);
-            
-            // FIX: Correct URL for GitHub Pages
-            const specialLink = window.location.origin + '/index.html?token=' + token + '&employeeId=' + employeeId;
-            
-            // Save token in localStorage
-            const glitchTokens = JSON.parse(localStorage.getItem('glitchTokens') || '{}');
-            glitchTokens[token] = {
-                employeeId: employeeId,
-                createdAt: new Date().getTime()
+            // Create assignment
+            const assignment = {
+                team: team,
+                timestamp: new Date().getTime(),
+                manual: true
             };
-            localStorage.setItem('glitchTokens', JSON.stringify(glitchTokens));
             
-            // Show the link
-            const container = document.getElementById('specialLinkContainer');
-            const linkInput = document.getElementById('specialLink');
+            // Save to Firebase
+            if (database) {
+                database.ref('assignments/' + employeeId).set(assignment);
+            } else {
+                console.error("Firebase database not initialized");
+            }
             
-            linkInput.value = specialLink;
-            container.style.display = 'block';
-        }
-        
-        // Copy link to clipboard
-        function copyLinkToClipboard() {
-            const linkInput = document.getElementById('specialLink');
-            linkInput.select();
-            document.execCommand('copy');
-            alert("Link copied to clipboard!");
+            // Save to localStorage
+            assignments[employeeId] = assignment;
+            localStorage.setItem('teamAssignments', JSON.stringify(assignments));
+            
+            // Show success message
+            const successElement = document.getElementById('manualSuccess');
+            successElement.style.display = 'block';
+            setTimeout(() => {
+                successElement.style.display = 'none';
+            }, 3000);
+            
+            // Clear form
+            document.getElementById('manualEmployeeId').value = '';
         }
         
         // Reset all assignments
@@ -733,7 +787,6 @@
             // Clear all stored data
             database.ref('assignments').remove();
             localStorage.removeItem('teamAssignments');
-            localStorage.removeItem('glitchTokens');
             
             // Reset UI
             updateStats();
@@ -746,8 +799,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Set up event listeners
             document.getElementById('downloadButton').addEventListener('click', downloadReport);
-            document.getElementById('generateLinkButton').addEventListener('click', generateSpecialLink);
-            document.getElementById('copyLinkButton').addEventListener('click', copyLinkToClipboard);
+            document.getElementById('manualAssignButton').addEventListener('click', manualAssignment);
             document.getElementById('resetButton').addEventListener('click', resetAllAssignments);
             
             // Key modal submit

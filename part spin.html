@@ -275,6 +275,18 @@
             font-size: 1.1rem;
         }
         
+        .glitch-instructions {
+            font-size: 1.1rem;
+            text-align: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin: 15px 0;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
         /* Mobile Responsive Updates */
         @media (max-width: 500px) {
             .wheel-container {
@@ -377,6 +389,10 @@
             <i class="fas fa-exclamation-triangle"></i> This assignment is already completed for <span class="participant-id" id="completedId"></span>
         </div>
         
+        <div class="glitch-instructions" id="glitchInstructions" style="display: none;">
+            <i class="fas fa-info-circle"></i> If you encountered a technical issue, please contact the event host for assistance.
+        </div>
+        
         <div class="stats">
             <div class="stat-item">
                 <div class="stat-value">450</div>
@@ -419,7 +435,8 @@
             database = firebase.database();
         } catch (error) {
             console.error("Firebase initialization error:", error);
-            alert("Error initializing Firebase. Please check console for details.");
+            // Show technical issue message
+            document.getElementById('glitchInstructions').style.display = 'block';
         }
         
         // Configuration
@@ -433,49 +450,6 @@
         
         const totalParticipants = 450;
         const participantsPerColor = totalParticipants / colors.length;
-        
-        // Check URL for special token
-        function checkForSpecialToken() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            const employeeId = urlParams.get('employeeId');
-            
-            if (token && employeeId) {
-                const glitchTokens = JSON.parse(localStorage.getItem('glitchTokens') || '{}');
-                const tokenData = glitchTokens[token];
-                
-                if (tokenData && tokenData.employeeId === employeeId) {
-                    // Token is valid - allow spin for this employee
-                    const assignments = JSON.parse(localStorage.getItem('teamAssignments') || '{}');
-                    delete assignments[employeeId];
-                    localStorage.setItem('teamAssignments', JSON.stringify(assignments));
-                    
-                    // Remove from Firebase
-                    if (database) {
-                        database.ref('assignments/' + employeeId).remove();
-                    }
-                    
-                    // Remove token from localStorage
-                    delete glitchTokens[token];
-                    localStorage.setItem('glitchTokens', JSON.stringify(glitchTokens));
-                    
-                    // Remove token from URL
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    
-                    // Enable spinning for this employee
-                    const employeeIdInput = document.getElementById('employeeId');
-                    employeeIdInput.value = employeeId;
-                    employeeIdInput.disabled = false;
-                    
-                    document.getElementById('spinButton').disabled = false;
-                    document.getElementById('alreadyCompleted').style.display = 'none';
-                    
-                    alert("Special access granted! You can now spin the wheel again.");
-                } else {
-                    alert("Invalid special access token");
-                }
-            }
-        }
         
         // Check if participant has already spun
         function checkParticipant(employeeId) {
@@ -493,12 +467,17 @@
                 });
             } else {
                 console.error("Firebase database not initialized");
+                // Show technical issue message
+                document.getElementById('glitchInstructions').style.display = 'block';
+                return false;
             }
             
             // Save to localStorage
-            const assignments = JSON.parse(localStorage.getItem('teamAssignments')) || '{}';
+            const assignments = JSON.parse(localStorage.getItem('teamAssignments') || '{}');
             assignments[employeeId] = { team: color.name, timestamp: new Date().getTime() };
             localStorage.setItem('teamAssignments', JSON.stringify(assignments));
+            
+            return true;
         }
         
         // Show already completed message
@@ -564,7 +543,14 @@
             // Simulate server request delay
             setTimeout(() => {
                 // Save assignment
-                saveAssignment(employeeId, color);
+                const success = saveAssignment(employeeId, color);
+                
+                if (!success) {
+                    // Handle Firebase error
+                    resultDiv.innerHTML = "Technical error! Please contact host";
+                    spinButton.disabled = false;
+                    return;
+                }
                 
                 // Update UI
                 resultDiv.innerHTML = `<div class="color-indicator">
@@ -584,8 +570,6 @@
         
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
-            checkForSpecialToken();
-            
             // Check if participant has already spun
             const assignments = JSON.parse(localStorage.getItem('teamAssignments') || '{}');
             const employeeIdInput = document.getElementById('employeeId');
@@ -612,6 +596,21 @@
             
             // Set up event listeners
             document.getElementById('spinButton').addEventListener('click', spinWheel);
+            
+            // Add real-time listener for manual assignments
+            if (database) {
+                database.ref('assignments').on('value', (snapshot) => {
+                    const assignments = snapshot.val() || {};
+                    localStorage.setItem('teamAssignments', JSON.stringify(assignments));
+                    
+                    // Check if current user has been assigned
+                    const employeeId = document.getElementById('employeeId').value;
+                    if (employeeId && assignments[employeeId]) {
+                        const color = colors.find(c => c.name === assignments[employeeId].team);
+                        showCompletedMessage(employeeId, color);
+                    }
+                });
+            }
         });
     </script>
 </body>
