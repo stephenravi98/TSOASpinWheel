@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Selection - Host</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.4rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .dashboard-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .card {
+            flex: 1;
+            min-width: 350px;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #ffd700;
+        }
+        
+        .admin-note {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 0, 0, 0.2);
+            border-radius: 10px;
+            border-left: 4px solid #ff5252;
+        }
+        
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .color-box {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            vertical-align: middle;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+        }
+        
+        .host-controls {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        
+        .download-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #00c853, #009624);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        
+        .download-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .reset-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff3d00, #d50000);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        
+        .reset-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .assignment-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .assignments-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        
+        .team-color {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .team-color-box {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+        }
+        
+        .team-distribution {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .team-dist-item {
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .team-dist-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .key-modal {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 1.1rem;
+            margin: 15px 0;
+        }
+        
+        .modal-button {
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #00c853, #009624);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        
+        .modal-button.cancel {
+            background: linear-gradient(45deg, #ff3d00, #d50000);
+        }
+        
+        .modal-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-content {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .team-distribution {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Key Access Modal -->
+    <div id="keyModal" class="key-modal">
+        <div class="modal-content">
+            <h2 class="modal-title"><i class="fas fa-lock"></i> Host Dashboard Access</h2>
+            <p>Please enter the host security key to access the host dashboard.</p>
+            
+            <input type="password" id="modalKeyInput" class="modal-input" placeholder="Enter host key">
+            <div id="keyError" style="color: #ff5252; margin: 10px 0; display: none;">
+                <i class="fas fa-exclamation-circle"></i> Incorrect key. Please try again.
+            </div>
+            
+            <button class="modal-button" id="submitKey">Submit Key</button>
+            <button class="modal-button cancel" id="cancelKey">Cancel</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-sync-alt"></i> Team Selection</h1>
+            <div class="subtitle">Host Portal</div>
+        </header>
+        
+        <div class="dashboard-content">
+            <div class="card">
+                <h2 class="section-title">Host Portal</h2>
+                
+                <div class="admin-note">
+                    <p><i class="fas fa-lock"></i> <strong>Admin Access Only:</strong> This section is for event hosts to manage team assignments.</p>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="assignedCount">0</div>
+                        <div class="stat-label">Assigned</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="remainingCount">450</div>
+                        <div class="stat-label">Remaining</div>
+                    </div>
+                </div>
+                
+                <div class="team-distribution">
+                    <div class="team-dist-item" style="border-left: 5px solid #e74c3c;">
+                        <div class="team-dist-value" id="redCount">0</div>
+                        <div class="team-color">
+                            <div class="team-color-box" style="background: #e74c3c;"></div>
+                            <div>Red Team</div>
+                        </div>
+                    </div>
+                    <div class="team-dist-item" style="border-left: 5px solid #3498db;">
+                        <div class="team-dist-value" id="blueCount">0</div>
+                        <div class="team-color">
+                            <div class="team-color-box" style="background: #3498db;"></div>
+                            <div>Blue Team</div>
+                        </div>
+                    </div>
+                    <div class="team-dist-item" style="border-left: 5px solid #2ecc71;">
+                        <div class="team-dist-value" id="greenCount">0</div>
+                        <div class="team-color">
+                            <div class="team-color-box" style="background: #2ecc71;"></div>
+                            <div>Green Team</div>
+                        </div>
+                    </div>
+                    <div class="team-dist-item" style="border-left: 5px solid #f1c40f;">
+                        <div class="team-dist-value" id="yellowCount">0</div>
+                        <div class="team-color">
+                            <div class="team-color-box" style="background: #f1c40f;"></div>
+                            <div>Yellow Team</div>
+                        </div>
+                    </div>
+                    <div class="team-dist-item" style="border-left: 5px solid #9b59b6;">
+                        <div class="team-dist-value" id="purpleCount">0</div>
+                        <div class="team-color">
+                            <div class="team-color-box" style="background: #9b59b6;"></div>
+                            <div>Purple Team</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="host-controls">
+                    <h3><i class="fas fa-file-excel"></i> Team Assignment Report</h3>
+                    <p>Download the full list of employee assignments with their team colors.</p>
+                    
+                    <div class="input-group">
+                        <label for="adminKey">Host Security Key:</label>
+                        <input type="password" id="adminKey" placeholder="Enter host key">
+                    </div>
+                    
+                    <button class="download-button" id="downloadButton">
+                        <i class="fas fa-download"></i> Download Excel Report
+                    </button>
+                </div>
+                
+                <div class="host-controls">
+                    <h3><i class="fas fa-link"></i> Special Links</h3>
+                    <p>Generate a special link for participants who faced technical issues:</p>
+                    <div class="input-group">
+                        <label for="glitchEmployeeId">Employee ID:</label>
+                        <input type="text" id="glitchEmployeeId" placeholder="Enter employee ID">
+                    </div>
+                    <button class="download-button" id="generateLinkButton">
+                        <i class="fas fa-plus-circle"></i> Generate Special Link
+                    </button>
+                    
+                    <div id="specialLinkContainer" style="display: none; margin-top: 15px;">
+                        <label>Special Participant Link:</label>
+                        <div style="display: flex; gap: 10px; margin-top: 5px;">
+                            <input type="text" id="specialLink" readonly style="flex: 1;">
+                            <button class="download-button" id="copyLinkButton" style="padding: 10px 15px;">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="section-title">Live Assignments</h2>
+                
+                <div class="host-controls">
+                    <h3><i class="fas fa-list"></i> Recent Assignments</h3>
+                    <div class="assignments-container" id="assignmentsContainer">
+                        <!-- Recent assignments will appear here -->
+                    </div>
+                </div>
+                
+                <div class="host-controls">
+                    <h3><i class="fas fa-chart-bar"></i> Team Distribution</h3>
+                    <div class="stats">
+                        <div class="stat-item" style="border-left: 5px solid #e74c3c;">
+                            <div class="stat-value" id="redTeamCount">0</div>
+                            <div class="stat-label">Red Team</div>
+                        </div>
+                        <div class="stat-item" style="border-left: 5px solid #3498db;">
+                            <div class="stat-value" id="blueTeamCount">0</div>
+                            <div class="stat-label">Blue Team</div>
+                        </div>
+                        <div class="stat-item" style="border-left: 5px solid #2ecc71;">
+                            <div class="stat-value" id="greenTeamCount">0</div>
+                            <div class="stat-label">Green Team</div>
+                        </div>
+                        <div class="stat-item" style="border-left: 5px solid #f1c40f;">
+                            <div class="stat-value" id="yellowTeamCount">0</div>
+                            <div class="stat-label">Yellow Team</div>
+                        </div>
+                        <div class="stat-item" style="border-left: 5px solid #9b59b6;">
+                            <div class="stat-value" id="purpleTeamCount">0</div>
+                            <div class="stat-label">Purple Team</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="host-controls">
+                    <h3><i class="fas fa-redo"></i> System Reset</h3>
+                    <p>Reset all assignments and start over. This action cannot be undone.</p>
+                    <div class="input-group">
+                        <label for="resetKey">Host Security Key:</label>
+                        <input type="password" id="resetKey" placeholder="Enter host key">
+                    </div>
+                    <button class="reset-button" id="resetButton">
+                        <i class="fas fa-exclamation-triangle"></i> Reset All Assignments
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Team Selection Event | 450 Associates | 5 Color Teams</p>
+            <p>Each team will have exactly 90 members | Only one spin allowed per participant</p>
+            <p>Host Key: <strong>HOSTKEY123</strong></p>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const HOST_KEY = "HOSTKEY123";
+        const colors = [
+            { name: "Red", value: "#e74c3c" },
+            { name: "Blue", value: "#3498db" },
+            { name: "Green", value: "#2ecc71" },
+            { name: "Yellow", value: "#f1c40f" },
+            { name: "Purple", value: "#9b59b6" }
+        ];
+        
+        const totalParticipants = 450;
+        const participantsPerColor = totalParticipants / colors.length;
+        
+        // Update assignment stats
+        function updateStats() {
+            const assignments = JSON.parse(localStorage.getItem('teamAssignments') || '{}');
+            const assignedCount = Object.keys(assignments).length;
+            const assignedElem = document.getElementById('assignedCount');
+            const remainingElem = document.getElementById('remainingCount');
+            
+            assignedElem.textContent = assignedCount;
+            remainingElem.textContent = totalParticipants - assignedCount;
+            
+            // Update team counts
+            const teamCounts = {
+                "Red": 0,
+                "Blue": 0,
+                "Green": 0,
+                "Yellow": 0,
+                "Purple": 0
+            };
+            
+            for (const employeeId in assignments) {
+                const team = assignments[employeeId];
+                if (teamCounts.hasOwnProperty(team)) {
+                    teamCounts[team]++;
+                }
+            }
+            
+            document.getElementById('redCount').textContent = teamCounts.Red;
+            document.getElementById('blueCount').textContent = teamCounts.Blue;
+            document.getElementById('greenCount').textContent = teamCounts.Green;
+            document.getElementById('yellowCount').textContent = teamCounts.Yellow;
+            document.getElementById('purpleCount').textContent = teamCounts.Purple;
+            
+            document.getElementById('redTeamCount').textContent = teamCounts.Red;
+            document.getElementById('blueTeamCount').textContent = teamCounts.Blue;
+            document.getElementById('greenTeamCount').textContent = teamCounts.Green;
+            document.getElementById('yellowTeamCount').textContent = teamCounts.Yellow;
+            document.getElementById('purpleTeamCount').textContent = teamCounts.Purple;
+        }
+        
+        // Update recent assignments
+        function updateRecentAssignments() {
+            const container = document.getElementById('assignmentsContainer');
+            const assignments = JSON.parse(localStorage.getItem('teamAssignments') || '{}');
+            
+            // Get last 5 assignments
+            const keys = Object.keys(assignments);
+            const recentAssignments = keys.slice(Math.max(keys.length - 5, 0)).reverse();
+            
+            container.innerHTML = '';
+            
+            if (recentAssignments.length === 0) {
+                container.innerHTML = '<p>No assignments yet</p>';
+                return;
+            }
+            
+            recentAssignments.forEach(employeeId => {
+                const colorName = assignments[employeeId];
+                const color = colors.find(c => c.name === colorName);
+                
+                const card = document.createElement('div');
+                card.className = 'assignment-card';
+                card.innerHTML = `
+                    <div>
+                        <strong>${employeeId}</strong>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">${new Date().toLocaleTimeString()}</div>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <span class="color-box" style="background:${color.value}"></span>
+                        <span>${colorName}</span>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // Download report handler
+        function downloadReport() {
+            const adminKey = document.getElementById('adminKey').value.trim();
+            
+            if (!adminKey) {
+                alert("Please enter the host security key");
+                return;
+            }
+            
+            if (adminKey !== HOST_KEY) {
+                alert("Invalid host security key");
+                return;
+            }
+            
+            // Get assignments from localStorage
+            const assignments = JSON.parse(localStorage.getItem('teamAssignments') || '{}');
+            
+            // Create CSV content
+            let csvContent = "Employee ID,Team Color\n";
+            for (const [employeeId, color] of Object.entries(assignments)) {
+                csvContent += `${employeeId},${color}\n`;
+            }
+            
+            // Create and download file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "team_assignments.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert("Report downloaded successfully!");
+        }
+        
+        // Generate special link for participants with technical issues
+        function generateSpecialLink() {
+            const employeeId = document.getElementById('glitchEmployeeId').value.trim();
+            
+            if (!employeeId) {
+                alert("Please enter Employee ID");
+                return;
+            }
+            
+            // Check if employee exists
+            const assignments = JSON.parse(localStorage.getItem('teamAssignments') || '{}');
+            if (!assignments[employeeId]) {
+                alert("No assignment found for this employee ID");
+                return;
+            }
+            
+            const token = 'glitch-' + Math.random().toString(36).substring(2, 15);
+            const specialLink = window.location.origin + '/participant.html?token=' + token + '&employeeId=' + employeeId;
+            
+            // Save token in localStorage
+            const glitchTokens = JSON.parse(localStorage.getItem('glitchTokens') || '{}');
+            glitchTokens[token] = {
+                employeeId: employeeId,
+                createdAt: new Date().getTime()
+            };
+            localStorage.setItem('glitchTokens', JSON.stringify(glitchTokens));
+            
+            // Show the link
+            const container = document.getElementById('specialLinkContainer');
+            const linkInput = document.getElementById('specialLink');
+            
+            linkInput.value = specialLink;
+            container.style.display = 'block';
+        }
+        
+        // Copy link to clipboard
+        function copyLinkToClipboard() {
+            const linkInput = document.getElementById('specialLink');
+            linkInput.select();
+            document.execCommand('copy');
+            alert("Link copied to clipboard!");
+        }
+        
+        // Reset all assignments
+        function resetAllAssignments() {
+            const resetKey = document.getElementById('resetKey').value.trim();
+            
+            if (!resetKey) {
+                alert("Please enter the host security key");
+                return;
+            }
+            
+            if (resetKey !== HOST_KEY) {
+                alert("Invalid host security key");
+                return;
+            }
+            
+            if (!confirm("Are you sure you want to reset all assignments? This action cannot be undone.")) {
+                return;
+            }
+            
+            // Clear all stored data
+            localStorage.removeItem('teamAssignments');
+            localStorage.removeItem('glitchTokens');
+            
+            // Reset UI
+            updateStats();
+            updateRecentAssignments();
+            
+            alert("All assignments have been reset successfully!");
+        }
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set up event listeners
+            document.getElementById('downloadButton').addEventListener('click', downloadReport);
+            document.getElementById('generateLinkButton').addEventListener('click', generateSpecialLink);
+            document.getElementById('copyLinkButton').addEventListener('click', copyLinkToClipboard);
+            document.getElementById('resetButton').addEventListener('click', resetAllAssignments);
+            
+            // Key modal submit
+            document.getElementById('submitKey').addEventListener('click', () => {
+                const enteredKey = document.getElementById('modalKeyInput').value.trim();
+                const errorElement = document.getElementById('keyError');
+                
+                if (enteredKey === HOST_KEY) {
+                    document.getElementById('keyModal').style.display = 'none';
+                    updateStats();
+                    updateRecentAssignments();
+                } else {
+                    errorElement.style.display = 'block';
+                }
+            });
+            
+            // Key modal cancel
+            document.getElementById('cancelKey').addEventListener('click', () => {
+                document.getElementById('keyModal').style.display = 'none';
+                window.location.href = 'participant.html';
+            });
+        });
+    </script>
+</body>
+</html>
