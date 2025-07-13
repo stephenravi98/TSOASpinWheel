@@ -29,10 +29,38 @@
             margin: 0 auto;
         }
         
+        /* Logo styling */
+        .logo-container {
+            position: absolute;
+            top: 20px;
+            right: 55px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .logo {
+            height: 100px;
+            width: auto;
+            margin-bottom: 5px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+        
+        .logo-text {
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+        }
+        
         header {
             text-align: center;
             padding: 20px 0;
             width: 100%;
+            position: relative;
         }
         
         h1 {
@@ -361,6 +389,20 @@
             .team-distribution {
                 grid-template-columns: 1fr;
             }
+            
+            /* Mobile logo adjustments */
+            .logo-container {
+                top: 15px;
+                right: 15px;
+            }
+            
+            .logo {
+                height: 40px;
+            }
+            
+            .logo-text {
+                font-size: 0.7rem;
+            }
         }
     </style>
     
@@ -369,6 +411,11 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
+    <!-- Logo in top right corner -->
+     <div class="logo-container">
+        <img src="LOGO/adrenalin_Logo.jpg" alt="Adrenalin Logo" class="logo">
+    </div>
+    
     <!-- Key Access Modal -->
     <div id="keyModal" class="key-modal">
         <div class="modal-content">
