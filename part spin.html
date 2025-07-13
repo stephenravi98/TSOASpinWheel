@@ -27,6 +27,7 @@
             max-width: 800px;
             width: 100%;
             margin: 0 auto;
+            padding: 0 15px;
         }
         
         header {
@@ -49,9 +50,10 @@
         
         .wheel-container {
             position: relative;
-            width: 480px;
-            height: 480px;
+            width: 100%;
+            max-width: 480px;
             margin: 20px auto;
+            aspect-ratio: 1/1;
         }
         
         .wheel {
@@ -75,8 +77,8 @@
         }
         
         .wheel-inner {
-            width: 160px;
-            height: 160px;
+            width: 30%;
+            height: 30%;
             background: white;
             border-radius: 50%;
             position: relative;
@@ -109,7 +111,7 @@
             display: flex;
             justify-content: center;
             align-items: flex-end;
-            padding-bottom: 177px;
+            padding-bottom: 40%;
         }
         
         .pointer {
@@ -129,7 +131,7 @@
             background: linear-gradient(45deg, #ff8c00, #ff4500);
             color: white;
             border: none;
-            padding: 18px 50px;
+            padding: 18px 30px;
             font-size: 1.4rem;
             border-radius: 50px;
             cursor: pointer;
@@ -177,12 +179,14 @@
             width: 100%;
             max-width: 480px;
             margin: 25px auto;
+            padding: 0 15px;
         }
         
         label {
             display: block;
             margin-bottom: 12px;
             font-size: 1.3rem;
+            text-align: center;
         }
         
         input {
@@ -193,6 +197,7 @@
             background: rgba(0, 0, 0, 0.2);
             color: white;
             font-size: 1.2rem;
+            text-align: center;
         }
         
         input:focus {
@@ -260,52 +265,89 @@
         }
         
         /* Mobile Responsive Updates */
-        @media (max-width: 500px) {
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.3rem;
+                margin-bottom: 8px;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+                margin-bottom: 20px;
+            }
+            
             .wheel-container {
-                width: 95vw;
-                height: 95vw;
-                max-width: 380px;
-                max-height: 380px;
+                max-width: 90vw;
+                max-height: 90vw;
             }
             
             .wheel-label {
-                padding-bottom: 50px;
-                font-size: 1.3rem;
+                padding-bottom: 35%;
+                font-size: 1.4rem;
             }
             
             .wheel-inner {
-                width: 25vw;
-                height: 25vw;
-                min-width: 100px;
-                min-height: 100px;
+                width: 25%;
+                height: 25%;
             }
             
             .spin-button {
-                padding: 15px 30px;
+                padding: 15px 20px;
                 font-size: 1.2rem;
             }
             
             .result {
                 font-size: 1.5rem;
+                padding: 12px 20px;
             }
             
-            h1 {
-                font-size: 2.2rem;
+            .input-group {
+                margin: 15px auto;
             }
             
-            .subtitle {
+            label {
                 font-size: 1.1rem;
+                margin-bottom: 8px;
+            }
+            
+            input {
+                padding: 15px;
+                font-size: 1.1rem;
+            }
+            
+            .completed-message {
+                font-size: 1.5rem;
+                padding: 20px;
+                margin: 20px 0;
             }
         }
         
         @media (max-width: 400px) {
-            .wheel-label {
-                font-size: 1.1rem;
-                padding-bottom: 45px;
-            }
-            
             h1 {
                 font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .wheel-label {
+                font-size: 1.1rem;
+                padding-bottom: 30%;
+            }
+            
+            .spin-button {
+                font-size: 1.1rem;
+                padding: 14px 18px;
+            }
+            
+            .result {
+                font-size: 1.3rem;
+            }
+            
+            .completed-message {
+                font-size: 1.3rem;
+                padding: 15px;
             }
         }
     </style>
@@ -325,7 +367,7 @@
             <div class="pointer"></div>
             <div class="wheel" id="wheel">
                 <div class="wheel-inner">
-                    <i class="fas fa-sync-alt fa-3x" style="color: #333;"></i>
+                    <i class="fas fa-sync-alt fa-2x" style="color: #333;"></i>
                 </div>
                 <div class="wheel-labels">
                     <div class="wheel-label" style="transform: rotate(36deg);">Red</div>
