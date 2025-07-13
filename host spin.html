@@ -406,11 +406,7 @@
                 <div class="stats">
                     <div class="stat-item">
                         <div class="stat-value" id="assignedCount">0</div>
-                        <div class="stat-label">Assigned</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="remainingCount">450</div>
-                        <div class="stat-label">Remaining</div>
+                        <div class="stat-label">Total Assigned</div>
                     </div>
                 </div>
                 
@@ -550,8 +546,8 @@
         </div>
         
         <div class="footer">
-            <p>Team Selection Event | 450 Associates | 5 Color Teams</p>
-            <p>Each team will have exactly 90 members | Only one spin allowed per participant</p>
+            <p>Team Selection Event | 5 Color Teams</p>
+            <p>Only one spin allowed per participant</p>
             <!-- Host key removed from public view -->
         </div>
     </div>
@@ -590,9 +586,6 @@
             { name: "Purple", value: "#9b59b6" }
         ];
         
-        const totalParticipants = 450;
-        const participantsPerColor = totalParticipants / colors.length;
-        
         // Real-time listener for assignments
         function setupRealtimeUpdates() {
             database.ref('assignments').on('value', (snapshot) => {
@@ -608,10 +601,8 @@
             const assignments = JSON.parse(localStorage.getItem('teamAssignments') || '{}');
             const assignedCount = Object.keys(assignments).length;
             const assignedElem = document.getElementById('assignedCount');
-            const remainingElem = document.getElementById('remainingCount');
             
             assignedElem.textContent = assignedCount;
-            remainingElem.textContent = totalParticipants - assignedCount;
             
             // Update team counts
             const teamCounts = {
